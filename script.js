@@ -62,31 +62,73 @@ document.addEventListener('DOMContentLoaded', () => {
   const formSuccess = document.getElementById('formSuccess');
 
   if (form) {
-    form.addEventListener('submit', (event) => {
+
+    form.addEventListener("submit", async (event) => {
+
       event.preventDefault();
       event.stopPropagation();
 
       if (!form.checkValidity()) {
-        form.classList.add('was-validated');
+        form.classList.add("was-validated");
         return;
       }
 
-      // Simulación de envío (sin backend conectado).
-      // Aquí se puede integrar EmailJS, Formspree o un endpoint propio.
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalText = submitBtn.innerHTML;
+
       submitBtn.disabled = true;
       submitBtn.innerHTML = 'Enviando... <i class="bi bi-arrow-repeat"></i>';
 
-      setTimeout(() => {
-        formSuccess.classList.remove('d-none');
-        form.reset();
-        form.classList.remove('was-validated');
+      const nombre = document.getElementById("nombre").value.trim();
+      const telefono = document.getElementById("telefono").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const mensaje = document.getElementById("mensaje").value.trim();
+
+      try {
+
+        const response = await fetch("https://spe-contact-api-7iaa-1axdm9ehm-sisempresas.vercel.app/api/contacto", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            nombre,
+            telefono,
+            correo,
+            mensaje
+          })
+        });
+
+        const resultado = await response.json();
+
+        if (response.ok && resultado.ok) {
+
+          formSuccess.classList.remove("d-none");
+          form.reset();
+          form.classList.remove("was-validated");
+
+          setTimeout(() => {
+            formSuccess.classList.add("d-none");
+          }, 6000);
+
+        } else {
+
+          if (resultado.errores) {
+            alert(resultado.errores.map(error => error.msg).join("\n"));
+          } else {
+            alert(resultado.mensaje || "No fue posible enviar el formulario.");
+          }
+
+        }
+
+      } catch (error) {
+        console.error(error);
+        alert("No fue posible conectar con el servidor.");
+      } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
+      }
 
-        setTimeout(() => formSuccess.classList.add('d-none'), 6000);
-      }, 900);
     });
   }
 
