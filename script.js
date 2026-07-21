@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
 
-        const response = await fetch("https://spe-contact-api-7iaa-1axdm9ehm-sisempresas.vercel.app/api/contacto", {
+        const response = await fetch("https://spe-contact-api.vercel.app/api/contacto", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
